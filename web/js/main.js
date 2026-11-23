@@ -177,4 +177,4 @@ export async function boot() {
 // First successful refresh (after boot, login or setup) opens the live connection.
 // Demo: the agent then proactively continues the story.
 const origRefresh = api.refresh;
-api.refresh = async () => { const b = await origRefresh(); if (!window.__covoConnected) { window.__covoConnected = true; api.connect(); registerSW(); if (b.provider === 'demo') api.post('/api/demo/start').catch(() => {}); } return b; };
+api.refresh = async () => { const b = await origRefresh(); if (!window.__covoConnected) { window.__covoConnected = true; api.connect(); registerSW(); } return b; };

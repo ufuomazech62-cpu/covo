@@ -30,7 +30,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const m = router.match(req.method, url.pathname);
     if (m) {
-      if (!m.route.opts.public && !authFromReq(req) && process.env.COVO_DEMO_NO_AUTH !== '1') return send(res, 401, { error: 'Not signed in' });
+      if (!m.route.opts.public && !authFromReq(req)) return send(res, 401, { error: 'Not signed in' });
       return await m.route.handler(req, res, m.params);
     }
     if (url.pathname.startsWith('/api/')) return send(res, 404, { error: 'Not found' });
@@ -53,7 +53,7 @@ const wssDevice = new WebSocketServer({ noServer: true });
 server.on('upgrade', (req, socket, head) => {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/ws') {
-    const ok = process.env.COVO_DEMO_NO_AUTH === '1' || sessionFromToken(parseCookies(req).covo_session) || apiTokenValid(url.searchParams.get('token'));
+    const ok = sessionFromToken(parseCookies(req).covo_session) || apiTokenValid(url.searchParams.get('token'));
     if (!ok) { socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n'); return socket.destroy(); }
     wssApp.handleUpgrade(req, socket, head, (ws) => wssApp.emit('connection', ws, req));
   } else if (url.pathname === '/device') {

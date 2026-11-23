@@ -22,7 +22,6 @@ import { artifactToHtml } from '../web/js/lib/artifact-html.js';
 import { publicStatus as integrationStatus, restartTelegram } from './integrations/telegram.js';
 
 export const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
-const DEMO_NO_AUTH = process.env.COVO_DEMO_NO_AUTH === '1';
 const SECURE = process.env.SECURE_COOKIES === '1';
 const COOKIE = 'covo_session';
 
@@ -47,7 +46,7 @@ const r = router;
 const DESKTOP_KEY = process.env.COVO_DESKTOP_KEY || '';
 const isDesktopReq = (req) => !!DESKTOP_KEY && !!authFromReq(req)?.session?.desktop;
 
-r.get('/api/auth/status', (req, res) => send(res, 200, { setup: DEMO_NO_AUTH || A.isSetup(), authed: DEMO_NO_AUTH || !!authFromReq(req), version: VERSION, appName: getSettings().agent.name || 'Covo', desktop: isDesktopReq(req), hasPassword: A.hasPassword() }), { public: true });
+r.get('/api/auth/status', (req, res) => send(res, 200, { setup: A.isSetup(), authed: !!authFromReq(req), version: VERSION, appName: getSettings().agent.name || 'Covo', desktop: isDesktopReq(req), hasPassword: A.hasPassword() }), { public: true });
 
 r.get('/api/auth/desktop', (req, res) => {
   const key = new URL(req.url, 'http://x').searchParams.get('key') || '';
