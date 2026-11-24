@@ -39,14 +39,19 @@ export function Setup() {
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const up = (patch) => setF({ ...f, ...patch });
-  const steps = 5;
+  // On the hosted service the model is provisioned server-side; setup must not
+  // overwrite it with the browser's local-model defaults.
+  const hosted = !window.COVO_STANDALONE && !window.covoDesktop;
+  const steps = hosted ? 4 : 5;
 
   const finish = async () => {
     setBusy(true); setErr('');
     try {
       await api.post('/api/auth/setup', { password: f.password, name: f.name, language: f.language, theme: f.theme, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
-      if (f.brain === 'claude' && f.apiKey) await api.put('/api/settings', { provider: { type: 'anthropic', anthropic: { apiKey: f.apiKey.trim() } } });
-      if (f.brain === 'local') await api.put('/api/settings', { provider: { type: 'openai', openai: { baseURL: f.baseURL, model: f.model } } });
+      if (!hosted) {
+        if (f.brain === 'claude' && f.apiKey) await api.put('/api/settings', { provider: { type: 'anthropic', anthropic: { apiKey: f.apiKey } } });
+        if (f.brain === 'local') await api.put('/api/settings', { provider: { type: 'openai', openai: { baseURL: f.baseURL, model: f.model } } });
+      }
       setStep(4);
     } catch (e) { setErr(e.message); }
     setBusy(false);
@@ -76,7 +81,13 @@ export function Setup() {
       <div class="row"><button class="btn ghost" onClick=${() => setStep(0)}>${t('Back')}</button><button class="btn primary grow" disabled=${!ok} onClick=${() => setStep(2)}>${t('Continue')}</button></div>`);
   }
 
-  if (step === 2) return card(html`
+  if (step === 2) return hosted ? card(html`
+    <${Orb} state="idle" />
+    <h1 style="font-size:var(--fs-2xl)">Your model is ready</h1>
+    <p class="lead">Covo Cloud provisions the model for you — no API key or setup needed.</p>
+    <div class="hint">Gemini 3.8 Flash is connected and ready to chat.</div>
+    <div class="row"><button class="btn ghost" onClick=${() => setStep(1)}>${t('Back')}</button><button class="btn primary grow" onClick=${() => setStep(3)}>${t('Continue')}</button></div>
+  `) : card(html`
     <h1 style="font-size:var(--fs-2xl)">Choose its brain</h1>
     <p class="lead">You can change this anytime in Settings → Model.</p>
     <button class=${cx('choice', f.brain === 'claude' && 'on')} onClick=${() => up({ brain: 'claude' })}><${Icon} name="sparkle" /><div><b>Claude (recommended)</b><small>Best for autonomous, multi-step work. Needs an Anthropic API key.</small></div></button>
@@ -95,7 +106,7 @@ export function Setup() {
         <div class="pv" style=${`background:${th.c[0]};height:56px`}><i style=${`width:70%;background:${th.c[1]}`}></i><i style=${`width:50%;align-self:flex-end;background:${th.c[2]}`}></i></div>
         <div class="nm" style="font-size:var(--fs-xs)">${th.name}</div></button>`)}</div>
     ${err && html`<div class="err">${err}</div>`}
-    <div class="row"><button class="btn ghost" onClick=${() => setStep(2)}>${t('Back')}</button><button class="btn primary grow" disabled=${busy} onClick=${finish}>${busy ? '…' : t('Continue')}</button></div>`);
+    <div class="row"><button class="btn ghost" onClick=${() => setStep(hosted ? 1 : 2)}>${t('Back')}</button><button class="btn primary grow" disabled=${busy} onClick=${finish}>${busy ? '…' : t('Continue')}</button></div>`);
 
   return card(html`
     <${Orb} state="writing" />
