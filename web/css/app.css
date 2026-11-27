@@ -403,8 +403,7 @@ html[data-embed="margin"] .m-bottom { position: sticky; bottom: 0; z-index: 20; 
 html[data-embed="margin"] .m-body { padding-bottom: 0; }
 
 
-/* Standalone composer embedded in the Margin admin home. */
-html[data-embed="composer"], html[data-embed="composer"] body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
-html[data-embed="composer"] #app { height: 100%; }
-html[data-embed="composer"] .composer { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+/* Standalone composer embedded in the Margin admin home. Keep Covo's own composer styling. */
+html[data-embed="composer"], html[data-embed="composer"] body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); }
+html[data-embed="composer"] #app { height: 100%; padding: 4px 6px; }
 html[data-embed="composer"] .suggestions { display: none; }
