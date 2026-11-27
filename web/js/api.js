@@ -10,6 +10,8 @@ const http = {
     let payload = body;
     if (body !== undefined && !(body instanceof Blob) && !(body instanceof ArrayBuffer)) { headers['Content-Type'] = 'application/json'; payload = JSON.stringify(body); }
     Object.assign(headers, opts.headers || {});
+    // Embedded composer: authenticate with a scoped Covo API token instead of a browser session.
+    if (window.COVO_EMBED_TOKEN) headers['Authorization'] = `Bearer ${window.COVO_EMBED_TOKEN}`;
     const res = await fetch(path, { method, headers, body: payload, credentials: 'same-origin' });
     const ct = res.headers.get('content-type') || '';
     const data = ct.includes('json') ? await res.json() : await res.text();
@@ -22,7 +24,7 @@ const http = {
   connect(onEvent) {
     let ws, retry = 800, closed = false;
     const open = () => {
-      ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+      ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws' + (window.COVO_EMBED_TOKEN ? `?token=${encodeURIComponent(window.COVO_EMBED_TOKEN)}` : ''));
       ws.onopen = () => { retry = 800; set({ online: true }); };
       ws.onmessage = (e) => { try { onEvent(JSON.parse(e.data)); } catch {} };
       ws.onclose = () => {
