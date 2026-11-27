@@ -23,10 +23,16 @@ const SECURITY_HEADERS = {
   'Referrer-Policy': 'same-origin',
   'X-Frame-Options': 'SAMEORIGIN',
 };
+const EMBED_ORIGIN = process.env.COVO_EMBED_ORIGIN || 'https://margin-api.fashiony.site';
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.setHeader(k, v);
+  // The standalone composer is designed to be framed by the host app's admin.
+  if (url.pathname === '/composer.html') {
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Content-Security-Policy', `frame-ancestors ${EMBED_ORIGIN}`);
+  }
   try {
     const m = router.match(req.method, url.pathname);
     if (m) {
