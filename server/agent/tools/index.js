@@ -6,6 +6,7 @@ import { resolveTarget, runOnDevice, deviceName, listDevices } from '../../devic
 import { notify } from '../../notify.js';
 import { sendEmail, emailConfigured } from '../../email.js';
 import { mcpTools } from '../../mcp.js';
+import { marginTools } from './margin.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tool registry. Each tool: { name, description, input_schema, category, run(input) }
@@ -296,7 +297,7 @@ function systemTools() {
 }
 
 export function buildTools(ctx) {
-  return [...coreTools(ctx), ...systemTools(), ...mcpTools()];
+  return [...coreTools(ctx), ...systemTools(), ...mcpTools(), ...marginTools()];
 }
 
 // Convert a tool's return value into tool_result content blocks.

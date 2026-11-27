@@ -18,9 +18,14 @@ import { Toasts, Avatar, cx } from './components/ui.js';
 import { LegalSheet } from './components/Legal.js';
 import { installNativeLinks } from './lib/native.js';
 
+/* ───────────── embedded in Margin admin ───────────── */
+const EMBED = new URLSearchParams(location.search).get('embed') === 'margin';
+if (EMBED) document.documentElement.dataset.embed = 'margin';
+
 /* ───────────── layout detection ───────────── */
 const wide = window.matchMedia('(min-width: 900px)');
 function computeLayout() {
+  if (EMBED) { if (get().ui.layout !== 'mobile') setUI({ layout: 'mobile' }); return; }
   const mode = get().settings?.appearance?.interfaceMode || 'auto';
   const layout = mode === 'auto' ? (wide.matches ? 'desktop' : 'mobile') : mode;
   if (layout !== get().ui.layout) setUI({ layout });
@@ -71,7 +76,7 @@ function MobileApp() {
     </main>
     <div class="m-bottom">
       ${tab === 'chat' && html`<${Suggestions} /><${Composer} />`}
-      <${TabBar} />
+      ${EMBED ? null : html`<${TabBar} />`}
     </div>
   </div>`;
 }
@@ -162,13 +167,14 @@ export async function boot() {
     if (!st.setup) return set({ boot: 'setup' });
     if (!st.authed) return set({ boot: 'login' });
     const b = await api.refresh(); // also opens the live connection (see wrapper below)
+    if (EMBED) setUI({ tab: 'chat', panel: 'none' });
     window.covoDesktop?.on('settings', (id) => setUI({ settings: id || 'general' }));
     // deep links from notifications: /?approval=… /?task=… /?tab=…
     const q = new URLSearchParams(location.search);
     if (q.get('task')) setUI({ task: q.get('task'), panel: 'task' });
     if (q.get('tab')) setUI({ tab: q.get('tab') });
     if (q.get('approval')) { const ap = b.approvals.find((a) => a.id === q.get('approval')); if (ap?.topicId) setUI({ tab: 'chat' }); }
-    if (q.toString()) history.replaceState(null, '', location.pathname);
+    if (q.toString()) history.replaceState(null, '', location.pathname + (EMBED ? '?embed=margin' : ''));
   } catch (e) {
     set({ boot: 'error', error: e.message });
   }

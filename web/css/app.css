@@ -394,3 +394,10 @@ a { color: var(--accent); }
 .legal-doc .table-wrap { overflow-x: auto; }
 .legal-note { font-size: var(--fs-xs); color: var(--ink-3); text-align: center; line-height: 1.5; }
 .legal-note a { color: var(--ink-2); cursor: pointer; text-decoration: underline; }
+
+
+/* Margin embed: the composer sits at the bottom of the home screen; no bottom navigation. */
+html[data-embed="margin"] .tabbar { display: none !important; }
+html[data-embed="margin"] .m-app { height: 100%; }
+html[data-embed="margin"] .m-bottom { position: sticky; bottom: 0; z-index: 20; }
+html[data-embed="margin"] .m-body { padding-bottom: 0; }
