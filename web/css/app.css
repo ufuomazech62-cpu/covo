@@ -407,3 +407,8 @@ html[data-embed="margin"] .m-body { padding-bottom: 0; }
 html[data-embed="composer"], html[data-embed="composer"] body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); }
 html[data-embed="composer"] #app { height: 100%; padding: 4px 6px; }
 html[data-embed="composer"] .suggestions { display: none; }
+
+
+/* Standalone Covo sidebar embedded in the admin's left rail. */
+html[data-embed="sidebar"], html[data-embed="sidebar"] body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); }
+html[data-embed="sidebar"] #app, html[data-embed="sidebar"] .d-side { height: 100%; width: 100%; }

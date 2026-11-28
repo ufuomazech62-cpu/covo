@@ -29,7 +29,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.setHeader(k, v);
   // The standalone composer is designed to be framed by the host app's admin.
-  if (url.pathname === '/composer.html') {
+  if (url.pathname === '/composer.html' || url.pathname === '/sidebar.html') {
     res.removeHeader('X-Frame-Options');
     res.setHeader('Content-Security-Policy', `frame-ancestors ${EMBED_ORIGIN}`);
   }
